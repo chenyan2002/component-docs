@@ -179,6 +179,7 @@ Records are similar to C or Rust `struct`s.
 
 ^^^ Not sure I understand this note. I assume WIT cannot have generic types at all?
 ^^^ Do we consider `record T { a: T }` as a valid type, which is isomorphic to empty type?
+^^^ Is `record {}` the same as `_`?
 
 ### Variants
 
@@ -197,6 +198,7 @@ Variants are similar to Rust `enum`s or OCaml discriminated unions. The closest 
 > User-defined variants can't be generic (that is, parameterised by type). Only built-in types can be generic.
 
 ^^^ Do we allow recursive types, e.g., `variant List { head: i32, tail: option<List> }`
+^^^ Do we allow `variant {}`, which is an empty type?
 
 ### Enums
 
