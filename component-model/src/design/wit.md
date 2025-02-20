@@ -434,6 +434,7 @@ world glow-in-the-dark-multi-function-device {
 
     // ...but also exports a function to make it glow in the dark
     export glow: func(brightness: u8);
+    ^^^ If include already has a function `glow`, does this still work?
 }
 ```
 
