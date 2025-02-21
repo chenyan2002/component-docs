@@ -73,6 +73,8 @@ working with WebAssembly modules and components.
    ```
 
 4. Use `wasm-tools` to create a component from the core module, first embedding component metadata
+   ^^^ It doesn't say why we need embed command first. Seems like it's putting the binary representation of wit into a custom section. I guess this should be done by SDK in high level languages.
+   ^^^ Both embed and new don't seem to check the type mismatch between wat and wit.
    inside the core module and then encoding the WAT to a Wasm binary.
 
    ```sh
@@ -85,5 +87,7 @@ working with WebAssembly modules and components.
 You can "run" a component by calling one of its exports. Hosts and runtimes often only support
 running components with certain exports. The [`wasmtime`](https://github.com/bytecodealliance/wasmtime) CLI can only run "command" components, so in
 order to run the `add` function above, it first must be composed with a primary "command" component
-that calls it. See [documentation on running components](./creating-and-consuming/running.md) for
+that calls it. See [documentation on running components](./creating-and-consuming/running.md) 
+^^^ This reference to `running components` is a bit jumpy. Because the reader has to first understand what is component composition.
+for
 more details.
