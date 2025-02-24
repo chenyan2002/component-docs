@@ -112,6 +112,7 @@ list<customer> // a list of customers
 This is similar to Rust `Vec`, or Java `List`.
 
 ### Options
+^^^ Maybe we want to introduce `records` and `variants` first, because `option` and `result` are special case of `record` and `variant`.
 
 `option<T>` for any type `T` may contain a value of type `T`, or may contain no value.  `T` can be any type, built-in or user-defined.  For example, a lookup function might return an option, allowing for the possibility that the lookup key wasn't found:
 
@@ -151,6 +152,7 @@ A `tuple` type is an ordered _fixed length_ sequence of values of specified type
 tuple<u64, string>      // An integer and a string
 tuple<u64, string, u64> // An integer, then a string, then an integer
 ```
+^^^ Is `tuple<>` the same as `_`?
 
 This is similar to tuples in Rust or OCaml.
 
@@ -175,6 +177,10 @@ Records are similar to C or Rust `struct`s.
 
 > User-defined records can't be generic (that is, parameterised by type). Only built-in types can be generic.
 
+^^^ Not sure I understand this note. I assume WIT cannot have generic types at all?
+^^^ Do we consider `record T { a: T }` as a valid type, which is isomorphic to empty type?
+^^^ Is `record {}` the same as `_`?
+
 ### Variants
 
 A `variant` type declares one or more cases. Each case has a name and, optionally, a type of data associated with that case. A variant instance contains exactly one case. Cases are separated by commas. The syntax is as follows:
@@ -191,6 +197,9 @@ Variants are similar to Rust `enum`s or OCaml discriminated unions. The closest 
 
 > User-defined variants can't be generic (that is, parameterised by type). Only built-in types can be generic.
 
+^^^ Do we allow recursive types, e.g., `variant List { head: i32, tail: option<List> }`
+^^^ Do we allow `variant {}`, which is an empty type?
+
 ### Enums
 
 An `enum` type is a variant type where none of the cases have associated data:
@@ -204,6 +213,7 @@ enum color {
 ```
 
 This can provide a simpler representation in languages without discriminated unions. For example, a WIT `enum` can translate directly to a C++ `enum`.
+^^^ Is `enum` a syntatic sugar of `variant`?
 
 ### Resources
 
@@ -243,6 +253,7 @@ always desugar to an owned return value. For example, the `blob` resource
 ```wit
 resource blob;  
 blob-constructor: func(bytes: list<u8>) -> blob;  
+^^^ Why is constructor not a static function?
 blob-write: func(self: borrow<blob>, bytes: list<u8>);  
 blob-read: func(self: borrow<blob>, n: u32) -> list<u8>;  
 blob-merge: static func(lhs: blob, rhs: blob) -> blob;
@@ -252,6 +263,7 @@ When a `resource` type name is wrapped with `borrow<...>`, it stands for a
 "borrowed" resource. A borrowed resource represents a temporary loan of a resource from the
 caller to the callee for the duration of the call. In contrast, when the owner
 of an owned resource drops that resource, the resource is destroyed.
+^^^ Is `borrow` only allowed on resource types, or we can also say `borrow<struct>`? How do we implement borrowing in languages like C?
 
 > More precisely, these are borrowed or owned `handles` of the resource. Learn more about `handles` in the [upstream component model specification](https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md#handles).
 
@@ -269,6 +281,7 @@ flags allowed-methods {
 ```
 
 > A `flags` type is logically equivalent to a record type where each field is of type `bool`, but it is represented more efficiently (as a bitfield) at the binary level.
+^^^ Is there a size limit for `flag`?
 
 ### Type aliases
 
@@ -278,10 +291,16 @@ You can define a new named type using `type ... = ...`. This can be useful for g
 type buffer = list<u8>;
 type http-result = result<http-response, http-error>;
 ```
+^^^ Do we allow duplicate type names, interface/world names?
 
 ## Functions
 
 A function is defined by a name and a function type. Like in record fields, the name is separated from the type by a colon:
+^^^ I assume functions are not first class. Can you do
+```
+type f = func(message: string);
+print: f;
+```
 
 ```wit
 do-nothing: func();
@@ -299,6 +318,8 @@ lookup: func(store: kv-store, key: string) -> option<string>;
 ```
 
 A function can have multiple return values. In this case the return values must be named, similar to the parameter list. All return values must be populated (in the same way as tuple or record fields).
+^^^ There is an asymmetry in the return values: singleton return doesn't need a name, but multiple returns need names.
+^^^ What's the difference between `f: () -> (a: u8, b: u8)` and `f: () -> record { a: u8, b: u8 }`?
 
 ```wit
 get-customers-paged: func(cont: continuation-token) -> (customers: list<customer>, cont: continuation-token);
@@ -413,10 +434,12 @@ world glow-in-the-dark-multi-function-device {
 
     // ...but also exports a function to make it glow in the dark
     export glow: func(brightness: u8);
+    ^^^ If include already has a function `glow`, does this still work?
 }
 ```
 
 As with `use` directives, you can `include` worlds from other packages.
+^^^ Can we include a partial world, like in `use`?
 
 ## Packages
 

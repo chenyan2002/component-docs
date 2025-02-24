@@ -1,4 +1,5 @@
 # WIT Packages
+^^^ This file can probably be merged to `WIT.md`? WIT already has a section on package.
 
 A **WIT package** is a set of one or more [WIT (Wasm Interface Type)](./wit.md) files containing a related set of interfaces and worlds. WIT is an IDL (interface definition language) for the Component Model. Packages provide a way for worlds and interfaces to refer to each other, and thus for an ecosystem of components to share common definitions.
 

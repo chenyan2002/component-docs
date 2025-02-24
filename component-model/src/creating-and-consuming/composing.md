@@ -2,7 +2,7 @@
 
 Because the WebAssembly component model packages code in a portable binary format, and provides machine-readable interfaces in [WIT](../design/wit.md) with a standardised ABI (Application Binary Interface), it enables applications and components to work together, no matter what languages they were originally written in. In the same way that, for example, a Rust package (crate) can be compiled together with other Rust code to create a higher-level library or an application, a Wasm component can be linked with other components.
 
-> Component model interoperation is more convenient and expressive than language-specific foreign function interfaces. A typical C FFI involves language-specific types, so it is not possible to link between arbitrary languages without at least some C-language wrapping or conversion. The component model, by contrast, provides a common way of expressing interfaces, and a standard binary representation of those interfaces. So if an import and an export have the same shape, they fit together directly.
+> Component model interoperation is more convenient and expressive than language-specific foreign function interfaces. A typical C FFI involves language-specific types, so it is not possible to link between arbitrary languages without at least some C-language wrapping or conversion. The component model, by contrast, provides a common way of expressing interfaces, and a standard binary representation of those interfaces. So if an import and an export have the same type?, they fit together directly.
 
 ## What is composition?
 
@@ -47,13 +47,17 @@ If we compose `validator` with `regex`, `validator`'s import of `docs:regex/matc
 
 Component composition tools are in their early stages right now.  Here are some tips to avoid or diagnose errors:
 
-* Composition happens at the level of interfaces. If the initial component directly imports functions, then composition will fail. If composition reports an error such as "component `path/to/component` has a non-instance import named `<name>`" then check that all imports and exports are defined by interfaces.
+* Composition happens at the level of interfaces. If the initial component directly imports functions, then composition will fail. 
+^^^ So this means WIT is nominal typing?
+If composition reports an error such as "component `path/to/component` has a non-instance import named `<name>`" then check that all imports and exports are defined by interfaces.
 * Composition is asymmetrical. It is not just "gluing components together" - it takes a primary component which has imports, and satisfies its imports using dependency components. For example, composing an implementation of `validator` with an implementation of `regex` makes sense because `validator` has a dependency that `regex` can satisfy; doing it the other way round doesn't work, because `regex` doesn't have any dependencies, let alone ones that `validator` can satisfy.
 * Composition cares about interface versions, and current tools are inconsistent about when they infer or inject versions. For example, if a Rust component exports `test:mypackage`, `cargo component build` will decorate this with the crate version, e.g. `test:mypackage@0.1.0`. If another Rust component _imports_ an interface from `test:mypackage`, that won't match `test:mypackage@0.1.0`. You can use [`wasm-tools component wit`](https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wit-component) to view the imports and exports embedded in the `.wasm` files and check whether they match up.
+^^^ Is there any version unification logic?
 
 ## Composing components with WAC
 
 You can use the [WAC](https://github.com/bytecodealliance/wac) CLI to compose components at the command line.
+^^^ Seems like WAC can be merged into wasm-tools?
 
 To perform quick and simple compositions, use the `wac plug` command. `wac plug` satisfies the import of a "socket" component by plugging a "plug" component's export into the socket. For example, a component that implements the [`validator` world above](#what-is-composition) needs to satisfy it's `match` import. It is a socket. While a component that implements the `regex` world, exports the `match` interface, and can be used as a plug. `wac plug` can plug a regex component's export into the validator component's import, creating a resultant composition:
 
